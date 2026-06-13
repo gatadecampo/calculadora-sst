@@ -5,45 +5,168 @@ app = Flask(__name__)
 # 1. El motor de cálculo en Python (Reglas de negocio)
 FORMULAS = {
     "manual": lambda x: x / 100,
-    "recursos_checklist": lambda x: x / 60,
+    "recursos_diagramas": lambda x: x / 60,  # Checklist, diagramas de flujo, infografías SST
     "glosario": lambda x: (x * 48) / 60,
     "evaluacion": lambda x: x * 2.5,
     "storyline": lambda x: x * 4,
     "recursos_pdf": lambda x: x * 2.5 
 }
 
-# 2. Interfaz Gráfica (HTML + CSS + JS)
+# 2. Interfaz Gráfica basada en "Templates Motion Graphics diseño SST_2.docx"
 HTML_INTERFAZ = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora de Lectura y Estudio SST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukplay SST</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #2c3e50; margin-top: 0; }
-        .group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        .result-box { background-color: #eef9f5; border-left: 5px solid #2ecc71; padding: 15px; border-radius: 4px; text-align: center; margin-top: 25px; }
-        .result-box span { display: block; font-size: 24px; font-weight: bold; color: #27ae60; }
+        :root {
+            --buk-blue-dark: #11347A;   /* Azul profundo de portadas Estilo A */
+            --buk-blue-logo: #2B52C3;   /* Azul del isotipo de Bukplay */
+            --buk-blue-sst: #3B5998;    /* Azul del badge SST */
+            --buk-blue-light: #E3ECFB;  /* Fondo periwinkle suave de cortinas */
+            --buk-orange: #FFAB00;      /* Naranja/Amarillo para destacar texto importante */
+            --text-dark: #1A2530;
+            --card-bg: #FFFFFF;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--buk-blue-light); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 25px -5px rgba(17, 52, 122, 0.15), 0 10px 10px -5px rgba(17, 52, 122, 0.1); 
+            width: 100%; 
+            max-width: 440px; 
+            border-top: 6px solid var(--buk-blue-dark);
+            position: relative;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 { 
+            color: var(--buk-blue-logo); 
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* El contenedor de la sigla SST calcado del logo original */
+        h2 span.sst-badge {
+            background-color: var(--buk-blue-sst);
+            color: white;
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        p.subtitle {
+            color: var(--buk-blue-dark);
+            font-size: 14px;
+            text-align: center;
+            margin: 8px 0 0 0;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .group { margin-bottom: 24px; }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 700; 
+            color: var(--buk-blue-dark); 
+            font-size: 14px;
+        }
+
+        select, input { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #D2DCF0; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 15px; 
+            color: var(--text-dark);
+            background-color: #FFF;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        /* Al hacer foco, se ilumina con el azul de la marca */
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--buk-blue-logo);
+            box-shadow: 0 0 0 4px rgba(43, 82, 195, 0.15);
+        }
+
+        /* Caja de resultado inspirada en el bloque de títulos destacados */
+        .result-box { 
+            background-color: var(--buk-blue-dark); 
+            padding: 22px; 
+            border-radius: 12px; 
+            text-align: center; 
+            margin-top: 15px; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-box label {
+            color: #FFFFFF;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        /* El número final se destaca en naranja brillante tal como en las diapositivas */
+        .result-box span { 
+            display: block; 
+            font-size: 42px; 
+            font-weight: 900; 
+            color: var(--buk-orange); 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Calculadora SST</h2>
+    <div class="header-container">
+        <h2>Bukplay <span class="sst-badge">SST</span></h2>
+        <p class="subtitle">Calculadora de tiempos de lectura y estudio</p>
+    </div>
     
     <div class="group">
-        <label for="tipoRecurso">Tipo de Recurso</label>
+        <label for="tipoRecurso">Tipo de recurso educativo</label>
         <select id="tipoRecurso">
-            <option value="manual" data-unit="Palabras">Manual</option>
-            <option value="recursos_checklist" data-unit="Palabras">Recursos obligatorios (checklist, diagramas)</option>
-            <option value="glosario" data-unit="Conceptos clave">Glosario</option>
-            <option value="evaluacion" data-unit="Preguntas">Evaluación</option>
-            <option value="storyline" data-unit="Slides">Storyline</option>
-            <option value="recursos_pdf" data-unit="Palabras">Recursos obligatorios (pdf interactivo)</option>
+            <option value="manual" data-unit="Palabras">Manuales y Textos Base</option>
+            <option value="recursos_diagramas" data-unit="Palabras">Diagramas y Esquemas (PHVA, IPERV, Árbol)</option>
+            <option value="recursos_pdf" data-unit="Palabras">PDF Interactivos y Guías de Aplicación</option>
+            <option value="glosario" data-unit="Conceptos clave">Glosario de Conceptos Clave</option>
+            <option value="evaluacion" data-unit="Preguntas">Evaluaciones y Cuestionarios SST</option>
+            <option value="storyline" data-unit="Slides">Módulos Interactivos Storyline / SCORM</option>
         </select>
     </div>
 
@@ -53,7 +176,7 @@ HTML_INTERFAZ = """
     </div>
 
     <div class="result-box">
-        <label>Tiempo de ejecución estimado:</label>
+        <label>Tiempo estimado de ejecución</label>
         <span id="resultado">0.0 min</span>
     </div>
 </div>
@@ -68,7 +191,6 @@ HTML_INTERFAZ = """
         const recurso = selectRecurso.value;
         const cantidad = parseFloat(inputCantidad.value) || 0;
         
-        // Cambia la etiqueta del input dinámicamente
         const unidad = selectRecurso.options[selectRecurso.selectedIndex].getAttribute('data-unit');
         labelInsumo.textContent = `Cantidad (${unidad})`;
 
@@ -79,7 +201,6 @@ HTML_INTERFAZ = """
                 body: JSON.stringify({ tipo_recurso: recurso, cantidad: cantidad })
             });
             
-            // ¡AQUÍ ESTÁ LA CORRECCIÓN! Usamos .json() en vez de .get_json()
             const data = await respuesta.json(); 
             
             if (data.success) {

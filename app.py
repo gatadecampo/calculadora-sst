@@ -11,14 +11,15 @@ def formatear_tiempo(minutos_decimales):
     segundos = segundos_totales % 60
     return f"{horas:02d}:{minutos:02d}:{segundos:02d}"
 
-# 2. El motor de cálculo en Python (Reglas de negocio)
+# 2. El motor de cálculo en Python (Reglas de negocio actualizadas)
 FORMULAS = {
     "manual": lambda x: x / 100,
+    "recursos_pdf": lambda x: x / 40,  
     "recursos_diagramas": lambda x: x / 60,  
     "glosario": lambda x: (x * 48) / 60,
     "evaluacion": lambda x: x * 2.5,
     "storyline": lambda x: x * 4,
-    "recursos_pdf": lambda x: x / 40  
+    "aplicaciones_practicas": lambda x: x * 2.5
 }
 
 # 3. Interfaz Gráfica (HTML + CSS)
@@ -66,29 +67,25 @@ HTML_INTERFAZ = """
             margin-bottom: 30px;
         }
 
-        /* Contenedor para alinear logo y título horizontalmente */
         .title-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px; /* Espacio entre el título y Esetín */
+            gap: 12px;
         }
 
-        /* ESTILOS PARA LA MASCOTA AJUSTADOS */
         .mascota {
-            width: 150px; /* Tamaño intermedio y equilibrado */
+            width: 150px;
             height: auto;
-            border-radius: 50%; /* Puedes borrar esta línea si corta mucho el dibujo */
+            border-radius: 50%;
             background-color: #fff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        }
-        }
 
-      h2 { 
+        h2 { 
             color: var(--buk-blue-logo); 
             margin: 0;
-            font-size: 95px; /* Subimos el tamaño del título */
+            font-size: 45px;
             font-weight: 800;
             letter-spacing: -1px;
             display: flex;
@@ -100,7 +97,7 @@ HTML_INTERFAZ = """
         h2 span.sst-badge {
             background-color: var(--buk-blue-sst);
             color: white;
-            font-size: 20px; /* Subimos el tamaño de la etiqueta SST */
+            font-size: 20px;
             padding: 5px 14px;
             border-radius: 8px;
             font-weight: 700;
@@ -176,23 +173,22 @@ HTML_INTERFAZ = """
 <body>
 
 <div class="card">
-  <div class="header-container">
+    <div class="header-container">
         <h2>Bukplay <span class="sst-badge">SST</span></h2>
-        
         <img src="/static/ESETIN_4.png" alt="Mascota Esetín" class="mascota">
-        
         <p class="subtitle">Calculadora de tiempos en andragogía</p>
     </div>
 
     <div class="group">
         <label for="tipoRecurso">Tipo de recurso educativo</label>
         <select id="tipoRecurso">
-            <option value="manual" data-unit="Palabras">Manuales y Textos Base</option>
-            <option value="recursos_diagramas" data-unit="Palabras">Diagramas y Esquemas (PHVA, IPERV, Árbol)</option>
-            <option value="recursos_pdf" data-unit="Palabras">PDF Interactivos y Guías de Aplicación</option>
-            <option value="glosario" data-unit="Conceptos clave">Glosario de Conceptos Clave</option>
-            <option value="evaluacion" data-unit="Preguntas">Evaluaciones y Cuestionarios SST</option>
-            <option value="storyline" data-unit="Slides">Módulos Interactivos Storyline / SCORM</option>
+            <option value="manual" data-unit="Palabras">Manual</option>
+            <option value="recursos_pdf" data-unit="Palabras">Recursos obligatorios (pdf interactivo y guías de aplicación interactiva)</option>
+            <option value="recursos_diagramas" data-unit="Palabras">Recursos obligatorios (checklist, diagramas de flujo, infografías)</option>
+            <option value="glosario" data-unit="Conceptos clave">Glosario</option>
+            <option value="evaluacion" data-unit="Preguntas">Evaluación</option>
+            <option value="storyline" data-unit="Slides">Storyline</option>
+            <option value="aplicaciones_practicas" data-unit="Palabras">Aplicaciones prácticas (tipo matriz)</option>
         </select>
     </div>
 
@@ -239,6 +235,9 @@ HTML_INTERFAZ = """
 
     selectRecurso.addEventListener('change', enviarDatosAPython);
     inputCantidad.addEventListener('input', enviarDatosAPython);
+    
+    // Llamar una vez al inicio para que el label coincida con la primera opción
+    enviarDatosAPython();
 </script>
 
 </body>
@@ -269,4 +268,4 @@ def api_calcular():
     return jsonify({"success": False, "error": "Recurso no válido"}), 400
 
 if __name__ == '__main__':
-    app.run(debug=False, port=5005)
+    app.run(host='0.0.0.0', debug=True, port=8080)
